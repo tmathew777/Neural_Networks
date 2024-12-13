@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #6a11cb, #2575fc);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .tab-buttons button {
+      flex: 1;
+      margin: 0 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student Management System</h1>
+
+    <div class="tab-buttons">
+      <button onclick="showTab('admin')">Admin</button>
+      <button onclick="showTab('student')">Student</button>
+    </div>
+
+    <!-- Admin Section -->
+    <div id="admin" class="hidden">
+      <h2>Admin Panel</h2>
+
+      <form id="adminForm">
+        <label for="operation">Operation:</label>
+        <select id="operation" name="operation">
+          <option value="add">Add Student</option>
+          <option value="update">Update Student</option>
+          <option value="remove">Remove Student</option>
+        </select>
+
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentId" name="studentId" required>
+
+        <div id="studentDetails">
+          <!-- Additional fields for Add/Update -->
+          <label for="firstTermGpa">First Term GPA:</label>
+          <input type="number" step="0.01" id="firstTermGpa" name="FirstTermGpa">
+
+          <label for="secondTermGpa">Second Term GPA:</label>
+          <input type="number" step="0.01" id="secondTermGpa" name="SecondTermGpa">
+
+          <!-- Add more fields as needed -->
+        </div>
+
+        <button type="button" onclick="handleAdminAction()">Submit</button>
+      </form>
+
+      <div id="adminResult"></div>
+    </div>
+
+    <!-- Student Section -->
+    <div id="student" class="hidden">
+      <h2>Student Panel</h2>
+
+      <form id="studentForm">
+        <label for="studentId">Student ID:</label>
+        <input type="text" id="studentIdStudent" name="studentId" required>
+
+        <button type="button" onclick="fetchPrediction()">Fetch Prediction</button>
+      </form>
+
+      <div id="studentResult"></div>
+    </div>
+  </div>
+
+  <script>
+    // Switch between tabs
+    function showTab(tab) {
+      document.getElementById('admin').classList.add('hidden');
+      document.getElementById('student').classList.add('hidden');
+      document.getElementById(tab).classList.remove('hidden');
+    }
+
+    // Handle Admin Actions (Add/Update/Remove)
+  async function handleAdminAction() {
+  const operation = document.getElementById('operation').value;
+  const studentId = document.getElementById('studentId').value;
+
+  // Construct the URL for the backend
+  const url = `http://127.0.0.1:8000/admin/add/${studentId}?username=admin&password=adminpass`;
+
+  // Prepare the request method and body
+  const body = {
+    FirstTermGpa: parseFloat(document.getElementById('firstTermGpa').value),
+    SecondTermGpa: parseFloat(document.getElementById('secondTermGpa').value),
+    // Add more fields as needed
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const result = await response.json();
+    document.getElementById('adminResult').textContent = JSON.stringify(result);
+  } catch (error) {
+    document.getElementById('adminResult').textContent = `Error: ${error.message}`;
+  }
+}
+
+
+
+    // Fetch Student Prediction
+    async function fetchPrediction() {
+      const studentId = document.getElementById('studentIdStudent').value;
+      const url = `http://127.0.0.1:8000/student/predict/${studentId}?username=student&password=studentpass`;
+
+      try {
+        const response = await fetch(url, { method: 'POST' });
+        const result = await response.json();
+        document.getElementById('studentResult').textContent = JSON.stringify(result);
+      } catch (error) {
+        document.getElementById('studentResult').textContent = `Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
